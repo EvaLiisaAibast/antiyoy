@@ -1,5 +1,5 @@
 
-const BASE_URL = "/sdb/YOUR_NAMESPACE/YOUR_DB";
+const BASE_URL = "https://tinkr.tech/sdb/poly/antiyoy";
 
 let state = null;
 let playerKey = null;
