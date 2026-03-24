@@ -16,7 +16,6 @@ async function fetchState() {
   }
 }
 
-
 function render() {
   const mapEl = document.getElementById("map");
   mapEl.innerHTML = "";
@@ -27,55 +26,56 @@ function render() {
     state.phase === "playing" &&
     state.current_player === myUsername;
 
-  
   document.body.style.background = isMyTurn ? "#102010" : "#201010";
 
- 
-  let infoText =
-    `Phase: ${state.phase || 'lobby'} | Turn: ${state.turn || '-'}`;
+  let infoText = "Phase: " + (state.phase || "lobby") +
+                 " | Turn: " + (state.turn || "-");
 
   if (state.phase === "playing") {
-    infoText += ` | Current: ${state.current_player}`;
+    infoText += " | Current: " + state.current_player;
   }
 
   if (myUsername) {
-    infoText += isMyTurn ? " | YOUR TURN" : " | WAITING";
+    if (isMyTurn) {
+      infoText += " | YOUR TURN";
+    } else {
+      infoText += " | WAITING";
+    }
   }
 
-  // Show money
-  const me = state.players?.find(p => p.username === myUsername);
+  const me = state.players && state.players.find(function(p) {
+    return p.username === myUsername;
+  });
+
   if (me) {
-    infoText += ` | Money: ${me.money} (+${me.income}/-${me.upkeep})`;
+    infoText += " | Money: " + me.money +
+                " (+" + me.income + "/-" + me.upkeep + ")";
   }
 
   document.getElementById("info").innerText = infoText;
 
-  for (const hex of state.map) {
+  for (let i = 0; i < state.map.length; i++) {
+    const hex = state.map[i];
     if (hex.type === "impassable") continue;
 
     const hexEl = document.createElement("div");
     hexEl.className = "hex";
 
-    
     hexEl.style.left = hex.x + "px";
     hexEl.style.top = hex.y + "px";
     hexEl.style.width = hex.width + "px";
     hexEl.style.height = hex.height + "px";
 
-    if (
-      selectedHex &&
-      selectedHex.col === hex.col &&
-      selectedHex.row === hex.row
-    ) {
+    if (selectedHex &&
+        selectedHex.col === hex.col &&
+        selectedHex.row === hex.row) {
       hexEl.classList.add("selected");
     }
 
-    
     const bg = document.createElement("img");
     bg.src = ASSET_BASE + hex.image;
     hexEl.appendChild(bg);
 
-    
     if (hex.unit_image) {
       const unit = document.createElement("img");
       unit.src = ASSET_BASE + hex.unit_image;
@@ -83,7 +83,6 @@ function render() {
       hexEl.appendChild(unit);
     }
 
-    
     if (hex.building_image) {
       const building = document.createElement("img");
       building.src = ASSET_BASE + hex.building_image;
@@ -91,19 +90,19 @@ function render() {
       hexEl.appendChild(building);
     }
 
-    hexEl.onclick = () => onHexClick(hex);
+    hexEl.onclick = function() {
+      onHexClick(hex);
+    };
 
     mapEl.appendChild(hexEl);
   }
 }
-
 
 function onHexClick(hex) {
   if (!playerKey) return;
 
   const buyType = document.getElementById("buyType").value;
 
-  // BUY
   if (buyType) {
     if (state.phase !== "playing") {
       alert("Game not started");
@@ -119,7 +118,6 @@ function onHexClick(hex) {
     document.getElementById("buyType").value = "";
     return;
   }
-
 
   if (!selectedHex) {
     selectedHex = hex;
@@ -145,12 +143,18 @@ function onHexClick(hex) {
 
 async function joinGame() {
   const username = document.getElementById("username").value;
-  if (!username) return alert("Enter username");
+  if (!username) {
+    alert("Enter username");
+    return;
+  }
 
   const res = await fetch(BASE_URL, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ action: "join", username })
+    body: JSON.stringify({
+      action: "join",
+      username: username
+    })
   });
 
   const data = await res.json();
@@ -170,7 +174,10 @@ async function startGame() {
 
 async function endTurn() {
   if (!playerKey) return;
-  await post({ action: "end_turn", player_key: playerKey });
+  await post({
+    action: "end_turn",
+    player_key: playerKey
+  });
 }
 
 async function moveUnit(from, to) {
@@ -186,7 +193,7 @@ async function buy(type, hex) {
   await post({
     action: "buy",
     player_key: playerKey,
-    type,
+    type: type,
     hex: { col: hex.col, row: hex.row }
   });
 }
@@ -212,7 +219,6 @@ async function post(body) {
 document.getElementById("joinBtn").onclick = joinGame;
 document.getElementById("startBtn").onclick = startGame;
 document.getElementById("endBtn").onclick = endTurn;
-
 
 setInterval(fetchState, 1500);
 fetchState();
