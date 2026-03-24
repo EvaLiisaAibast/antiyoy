@@ -1,10 +1,10 @@
-
 const BASE_URL = "https://tinkr.tech/sdb/poly/antiyoy";
+const ASSET_BASE = "https://tinkr.tech";
 
 let state = null;
 let playerKey = null;
 let selectedHex = null;
-
+let myUsername = null;
 
 async function fetchState() {
   try {
@@ -12,7 +12,7 @@ async function fetchState() {
     state = await res.json();
     render();
   } catch (err) {
-    console.error("Failed to fetch state:", err);
+    console.error("Fetch failed:", err);
   }
 }
 
@@ -23,89 +23,142 @@ function render() {
 
   if (!state) return;
 
-  // Display info
-  document.getElementById("info").innerText =
-    `Phase: ${state.phase || 'lobby'} | Turn: ${state.turn || '-'} | Current: ${state.current_player || '-'}`;
+  const isMyTurn =
+    state.phase === "playing" &&
+    state.current_player === myUsername;
+
+  
+  document.body.style.background = isMyTurn ? "#102010" : "#201010";
+
+ 
+  let infoText =
+    `Phase: ${state.phase || 'lobby'} | Turn: ${state.turn || '-'}`;
+
+  if (state.phase === "playing") {
+    infoText += ` | Current: ${state.current_player}`;
+  }
+
+  if (myUsername) {
+    infoText += isMyTurn ? " | YOUR TURN" : " | WAITING";
+  }
+
+  // Show money
+  const me = state.players?.find(p => p.username === myUsername);
+  if (me) {
+    infoText += ` | Money: ${me.money} (+${me.income}/-${me.upkeep})`;
+  }
+
+  document.getElementById("info").innerText = infoText;
 
   for (const hex of state.map) {
     if (hex.type === "impassable") continue;
 
     const hexEl = document.createElement("div");
     hexEl.className = "hex";
+
+    
     hexEl.style.left = hex.x + "px";
     hexEl.style.top = hex.y + "px";
+    hexEl.style.width = hex.width + "px";
+    hexEl.style.height = hex.height + "px";
 
-
-    if (selectedHex && selectedHex.col === hex.col && selectedHex.row === hex.row) {
+    if (
+      selectedHex &&
+      selectedHex.col === hex.col &&
+      selectedHex.row === hex.row
+    ) {
       hexEl.classList.add("selected");
     }
 
-
+    
     const bg = document.createElement("img");
-    bg.src = hex.image;
+    bg.src = ASSET_BASE + hex.image;
     hexEl.appendChild(bg);
 
-
+    
     if (hex.unit_image) {
       const unit = document.createElement("img");
-      unit.src = hex.unit_image;
+      unit.src = ASSET_BASE + hex.unit_image;
       unit.className = "overlay";
       hexEl.appendChild(unit);
     }
 
+    
     if (hex.building_image) {
       const building = document.createElement("img");
-      building.src = hex.building_image;
+      building.src = ASSET_BASE + hex.building_image;
       building.className = "overlay";
       hexEl.appendChild(building);
     }
 
-    hexEl.title = `Owner: ${hex.owner || 'none'}\nUnit: ${hex.unit || 'none'}\nBuilding: ${hex.building || 'none'}`;
-
-    // Click handler
     hexEl.onclick = () => onHexClick(hex);
 
     mapEl.appendChild(hexEl);
   }
 }
 
+
 function onHexClick(hex) {
   if (!playerKey) return;
 
   const buyType = document.getElementById("buyType").value;
 
+  // BUY
   if (buyType) {
-    // Buying a unit/building
+    if (state.phase !== "playing") {
+      alert("Game not started");
+      return;
+    }
+
+    if (state.current_player !== myUsername) {
+      alert("Not your turn");
+      return;
+    }
+
     buy(buyType, hex);
     document.getElementById("buyType").value = "";
     return;
   }
 
+
   if (!selectedHex) {
-    // First click: select hex
     selectedHex = hex;
   } else {
-    // Second click: move unit
+    if (state.phase !== "playing") {
+      alert("Game not started");
+      selectedHex = null;
+      return;
+    }
+
+    if (state.current_player !== myUsername) {
+      alert("Not your turn");
+      selectedHex = null;
+      return;
+    }
+
     moveUnit(selectedHex, hex);
     selectedHex = null;
   }
+
   render();
 }
 
 async function joinGame() {
   const username = document.getElementById("username").value;
-  if (!username) return alert("Enter a username");
+  if (!username) return alert("Enter username");
 
   const res = await fetch(BASE_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ action: "join", username })
   });
 
   const data = await res.json();
+
   if (data.player_key) {
     playerKey = data.player_key;
-    alert("Joined! Your key: " + playerKey);
+    myUsername = username;
+    alert("Joined! Now press Start Game.");
   } else {
     alert(data.error);
   }
@@ -121,7 +174,6 @@ async function endTurn() {
 }
 
 async function moveUnit(from, to) {
-  if (!playerKey) return;
   await post({
     action: "move",
     player_key: playerKey,
@@ -131,7 +183,6 @@ async function moveUnit(from, to) {
 }
 
 async function buy(type, hex) {
-  if (!playerKey) return;
   await post({
     action: "buy",
     player_key: playerKey,
@@ -144,14 +195,13 @@ async function post(body) {
   try {
     const res = await fetch(BASE_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(body)
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      console.error(data.error);
       alert(data.error);
     }
   } catch (err) {
@@ -162,6 +212,7 @@ async function post(body) {
 document.getElementById("joinBtn").onclick = joinGame;
 document.getElementById("startBtn").onclick = startGame;
 document.getElementById("endBtn").onclick = endTurn;
+
 
 setInterval(fetchState, 1500);
 fetchState();
