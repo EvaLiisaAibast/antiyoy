@@ -1,10 +1,18 @@
-const BASE_URL = "https://tinkr.tech/sdb/poly/antiyoy";
+const BASE_URL = "https://tinkr.tech/sdb/Antiyoy/Antiyoy";
 const ASSET_BASE = "https://tinkr.tech";
 
 let state = null;
 let playerKey = null;
 let selectedHex = null;
 let myUsername = null;
+
+const savedUsername = localStorage.getItem("username");
+const savedKey = localStorage.getItem("playerKey");
+
+if (savedUsername && savedKey) {
+  myUsername = savedUsername;
+  playerKey = savedKey;
+}
 
 async function fetchState() {
   try {
@@ -99,6 +107,7 @@ function render() {
 }
 
 function onHexClick(hex) {
+  console.log(hex)
   if (!playerKey) return;
 
   const buyType = document.getElementById("buyType").value;
@@ -162,6 +171,10 @@ async function joinGame() {
   if (data.player_key) {
     playerKey = data.player_key;
     myUsername = username;
+
+    localStorage.setItem("username", myUsername);
+    localStorage.setItem("playerKey", playerKey);
+
     alert("Joined! Now press Start Game.");
   } else {
     alert(data.error);
@@ -173,6 +186,7 @@ async function startGame() {
 }
 
 async function endTurn() {
+  console.log(playerKey)
   if (!playerKey) return;
   await post({
     action: "end_turn",
