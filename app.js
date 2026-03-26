@@ -107,19 +107,30 @@ function render() {
 }
 
 function onHexClick(hex) {
-  console.log(hex)
+  console.log(hex);
+
   if (!playerKey) return;
 
-  const buyType = document.getElementById("buyType").value;
+  if (state.phase !== "playing") {
+    alert("Game not started");
+    return;
+  }
 
+  if (state.current_player !== myUsername) {
+    alert("Not your turn");
+    return;
+  }
+
+  const buyType = document.getElementById("buyType").value;
   if (buyType) {
-    if (state.phase !== "playing") {
-      alert("Game not started");
+    if (hex.type === "impassable" || isHexOccupied(hex)) {
+      alert("Can't buy here: Invalid hex");
       return;
     }
 
-    if (state.current_player !== myUsername) {
-      alert("Not your turn");
+    if (hex.type === "neutral") {
+      buy(buyType, hex);
+      document.getElementById("buyType").value = "";
       return;
     }
 
@@ -129,25 +140,41 @@ function onHexClick(hex) {
   }
 
   if (!selectedHex) {
+    if (hex.type === "impassable") {
+      alert("Can't select this hex: It's impassable.");
+      return;
+    }
     selectedHex = hex;
   } else {
-    if (state.phase !== "playing") {
-      alert("Game not started");
+    if (isValidMove(selectedHex, hex)) {
+      moveUnit(selectedHex, hex);
       selectedHex = null;
-      return;
+    } else {
+      alert("Invalid move: You can't move to this hex.");
     }
-
-    if (state.current_player !== myUsername) {
-      alert("Not your turn");
-      selectedHex = null;
-      return;
-    }
-
-    moveUnit(selectedHex, hex);
-    selectedHex = null;
   }
 
   render();
+}
+
+function isValidMove(from, to) {
+  const rowDiff = Math.abs(from.row - to.row);
+  const colDiff = Math.abs(from.col - to.col);
+  const isAdjacent = (rowDiff <= 1 && colDiff <= 1);
+
+  if (!isAdjacent) {
+    return false;  
+  }
+
+  if (to.type === "impassable" || isHexOccupied(to)) {
+    return false;
+  }
+
+  return true;
+}
+
+function isHexOccupied(hex) {
+  return (hex.unit_image || hex.building_image);
 }
 
 async function joinGame() {
@@ -186,7 +213,6 @@ async function startGame() {
 }
 
 async function endTurn() {
-  console.log(playerKey)
   if (!playerKey) return;
   await post({
     action: "end_turn",
@@ -204,6 +230,11 @@ async function moveUnit(from, to) {
 }
 
 async function buy(type, hex) {
+  if (isHexOccupied(hex)) {
+    alert("This hex is occupied! Can't place here.");
+    return;
+  }
+
   await post({
     action: "buy",
     player_key: playerKey,
