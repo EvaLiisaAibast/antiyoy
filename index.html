@@ -3,31 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <title>Antiyoy Multiplayer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&family=IM+Fell+English&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<div id="ui">
-  <input id="username" placeholder="Enter username" />
-  <button id="joinBtn">Join Game</button>
-  <button id="startBtn">Start Game</button>
-  <button id="endBtn">End Turn</button>
+  <div id="musicPlayer">
+    <div id="musicTitle">⚔ ANTIYOY OST</div>
+    <div id="musicControls">
+      <button class="mBtn" id="prevBtn" title="Previous">&#9664;&#9664;</button>
+      <button class="mBtn" id="playBtn" title="Play/Pause">&#9654;</button>
+      <button class="mBtn" id="nextBtn" title="Next">&#9654;&#9654;</button>
+      <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.5" title="Volume" />
+      <span id="volIcon">🔊</span>
+    </div>
+    <div id="trackName">No track loaded</div>
+    <div id="progressBar"><div id="progressFill"></div></div>
+  </div>
 
-  <select id="buyType">
-    <option value="">Buy...</option>
-    <option value="peasant">Peasant</option>
-    <option value="spearman">Spearman</option>
-    <option value="knight">Knight</option>
-    <option value="baron">Baron</option>
-    <option value="farm">Farm</option>
-    <option value="tower">Tower</option>
-    <option value="fortress">Fortress</option>
-  </select>
-</div>
+  <!-- MAIN UI -->
+  <div id="ui">
+    <div id="uiLeft">
+      <input id="username" placeholder="Enter username" autocomplete="off" />
+      <button id="joinBtn" class="btn-primary">Join Game</button>
+      <button id="startBtn" class="btn-secondary">Start Game</button>
+    </div>
+    <div id="uiCenter">
+      <div id="info">Phase: lobby | Turn: -</div>
+    </div>
+    <div id="uiRight">
+      <select id="buyType">
+        <option value="">⚔ Buy Unit/Building...</option>
+        <optgroup label="Units">
+          <option value="peasant">🧑 Peasant (10g)</option>
+          <option value="spearman">⚔ Spearman (20g)</option>
+          <option value="knight">🛡 Knight (30g)</option>
+          <option value="baron">👑 Baron (40g)</option>
+        </optgroup>
+        <optgroup label="Buildings">
+          <option value="farm">🌾 Farm (+2 income)</option>
+          <option value="tower">🗼 Tower (defense)</option>
+          <option value="fortress">🏰 Fortress (strong defense)</option>
+        </optgroup>
+      </select>
+      <button id="endBtn" class="btn-danger">End Turn</button>
+    </div>
+  </div>
 
-<div id="info"></div>
-<div id="map"></div>
+  <div id="unitPanel">
+    <span id="unitInfo">— No player data —</span>
+  </div>
 
-<script src="app.js"></script>
+  <div id="mapWrapper">
+    <div id="map"></div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
