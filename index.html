@@ -9,19 +9,6 @@
 </head>
 <body>
 
-  <div id="musicPlayer">
-    <div id="musicTitle">⚔ ANTIYOY OST</div>
-    <div id="musicControls">
-      <button class="mBtn" id="prevBtn" title="Previous">&#9664;&#9664;</button>
-      <button class="mBtn" id="playBtn" title="Play/Pause">&#9654;</button>
-      <button class="mBtn" id="nextBtn" title="Next">&#9654;&#9654;</button>
-      <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.5" title="Volume" />
-      <span id="volIcon">🔊</span>
-    </div>
-    <div id="trackName">No track loaded</div>
-    <div id="progressBar"><div id="progressFill"></div></div>
-  </div>
-
   <!-- MAIN UI -->
   <div id="ui">
     <div id="uiLeft">
@@ -42,9 +29,9 @@
           <option value="baron">👑 Baron (40g)</option>
         </optgroup>
         <optgroup label="Buildings">
-          <option value="farm">🌾 Farm (+2 income)</option>
-          <option value="tower">🗼 Tower (defense)</option>
-          <option value="fortress">🏰 Fortress (strong defense)</option>
+          <option value="farm">🌾 Farm (+2 income, 15g)</option>
+          <option value="tower">🗼 Tower (defense, 25g)</option>
+          <option value="fortress">🏰 Fortress (strong defense, 40g)</option>
         </optgroup>
       </select>
       <button id="endBtn" class="btn-danger">End Turn</button>
@@ -60,6 +47,15 @@
   </div>
 
   <div id="tooltip"></div>
+
+  <!-- Spotify Embed Bottom Left -->
+  <div id="spotifyEmbed">
+    <iframe data-testid="embed-iframe" style="border-radius:12px" 
+            src="https://open.spotify.com/embed/playlist/25FRBddMnZKKctxOi2ZbBs?utm_source=generator" 
+            width="300" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+    </iframe>
+    <div style="font-size:10px;color:#ccc;margin-top:2px;">Recommended background music</div>
+  </div>
 
   <script src="app.js"></script>
 </body>
