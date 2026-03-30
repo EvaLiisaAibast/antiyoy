@@ -379,3 +379,15 @@ body.my-turn #info {
   #musicPlayer { top: auto; bottom: 10px; right: 10px; min-width: 180px; }
   #map { width: 700px; height: 560px; }
 }
+/* Spotify embed styling */
+#spotifyEmbed {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1000;
+  text-align: center;
+}
+#spotifyEmbed iframe {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
