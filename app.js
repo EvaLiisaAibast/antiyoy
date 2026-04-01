@@ -109,8 +109,8 @@ async function buy(type, hex) {
 }
 
 function onHexClick(hex) {
-  if (!playerKey)                         return alert("You must join the game first!");
-  if (state.phase !== "playing")          return alert("Game not started yet.");
+  if (!playerKey)                          return alert("You must join the game first!");
+  if (state.phase !== "playing")           return alert("Game not started yet.");
   if (state.current_player !== myUsername) return alert("Not your turn!");
 
   const buyType = document.getElementById("buyType").value;
@@ -118,7 +118,7 @@ function onHexClick(hex) {
   if (buyType) {
     if (hex.type === "impassable") return alert("Can't place here: impassable tile.");
     const isUnit = UNIT_COST[buyType] !== undefined;
-    if (isUnit && hex.building)    return alert("Can't place a unit on a building.");
+    if (isUnit && hex.building)        return alert("Can't place a unit on a building.");
     if (!isUnit && isHexOccupied(hex)) return alert("Can't place a building here: hex is occupied.");
     buy(buyType, hex);
     document.getElementById("buyType").value = "";
@@ -126,8 +126,8 @@ function onHexClick(hex) {
   }
 
   if (!selectedHexCoords) {
-    if (!hex.unit)                  return alert("No unit on this tile. Select a tile with your unit to move.");
-    if (hex.owner !== myUsername)   return alert("That's not your unit.");
+    if (!hex.unit)                 return alert("No unit on this tile. Select a tile with your unit to move.");
+    if (hex.owner !== myUsername)  return alert("That's not your unit.");
     selectedHexCoords = { col: hex.col, row: hex.row };
     render();
   } else {
@@ -168,15 +168,12 @@ function onHexClick(hex) {
 function isValidMove(from, to) {
   if (to.type === "impassable") return false;
   if (!isAdjacent(from, to))    return false;
-
   if (to.owner === myUsername && to.building && !to.unit) return false;
-
   if (to.owner === myUsername && to.unit) {
     const fromStrength = unitStrength(from.unit);
     const toStrength   = unitStrength(to.unit);
     if (!(fromStrength > 1 && toStrength === 1)) return false;
   }
-
   return true;
 }
 
@@ -289,18 +286,18 @@ function renderHex(hex) {
     hexEl.appendChild(unit);
 
     if (hex.unit === "peasant" && hex.unit_count && hex.unit_count > 1) {
-      const badge       = document.createElement("div");
-      badge.className   = "peasant-count";
-      badge.innerText   = "x" + hex.unit_count;
+      const badge     = document.createElement("div");
+      badge.className = "peasant-count";
+      badge.innerText = "x" + hex.unit_count;
       hexEl.appendChild(badge);
     }
   }
 
   if (hex.building_image) {
-    const bld       = document.createElement("img");
-    bld.src         = ASSET_BASE + hex.building_image;
-    bld.className   = "overlay";
-    bld.alt         = hex.building || "building";
+    const bld     = document.createElement("img");
+    bld.src       = ASSET_BASE + hex.building_image;
+    bld.className = "overlay";
+    bld.alt       = hex.building || "building";
     hexEl.appendChild(bld);
   }
 
@@ -342,11 +339,6 @@ function hideTooltip() {
 document.getElementById("joinBtn").onclick  = joinGame;
 document.getElementById("startBtn").onclick = startGame;
 document.getElementById("endBtn").onclick   = endTurn;
-
-const musicDiv = document.createElement("div");
-musicDiv.style.cssText = "position:fixed;bottom:10px;left:10px;z-index:1000;";
-musicDiv.innerHTML = `<a href="https://open.spotify.com/playlist/25FRBddMnZKKctxOi2ZbBs?utm_source=generator" target="_blank" style="color:#f0c060;font-family:sans-serif;font-size:12px;text-decoration:none;">🎵 Recommended Antiyoy OST on Spotify</a>`;
-document.body.appendChild(musicDiv);
 
 setInterval(fetchState, 1500);
 fetchState();
