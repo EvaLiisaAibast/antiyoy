@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- MAIN UI -->
+
   <div id="ui">
     <div id="uiLeft">
       <input id="username" placeholder="Enter username" autocomplete="off" />
@@ -48,13 +48,19 @@
 
   <div id="tooltip"></div>
 
-  <!-- Spotify Embed Bottom Left -->
   <div id="spotifyEmbed">
-    <iframe data-testid="embed-iframe" style="border-radius:12px" 
-            src="https://open.spotify.com/embed/playlist/25FRBddMnZKKctxOi2ZbBs?utm_source=generator" 
-            width="300" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+    <iframe
+      style="border-radius:8px; display:block;"
+      src="https://open.spotify.com/embed/playlist/25FRBddMnZKKctxOi2ZbBs?utm_source=generator"
+      width="260"
+      height="80"
+      frameborder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy">
     </iframe>
-    <div style="font-size:10px;color:#ccc;margin-top:2px;">Recommended background music</div>
+    <div style="font-size:10px; color:#8a7450; margin-top:4px; text-align:center; font-style:italic;">
+      Recommended background music
+    </div>
   </div>
 
   <script src="app.js"></script>
