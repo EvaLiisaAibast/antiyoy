@@ -4,53 +4,55 @@
   <meta charset="UTF-8" />
   <title>Antiyoy Multiplayer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&family=IM+Fell+English&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
+  <div id="gameWrapper">
 
-  <div id="ui">
-    <div id="uiLeft">
-      <input id="username" placeholder="Enter username" autocomplete="off" />
-      <button id="joinBtn" class="btn-primary">Join Game</button>
-      <button id="startBtn" class="btn-secondary">Start Game</button>
+    <div id="ui">
+      <div id="uiLeft">
+        <input id="username" placeholder="Enter username" autocomplete="off" />
+        <button id="joinBtn" class="btn-primary">Join Game</button>
+        <button id="startBtn" class="btn-secondary">Start Game</button>
+      </div>
+      <div id="uiCenter">
+        <div id="info">Phase: lobby | Turn: -</div>
+      </div>
+      <div id="uiRight">
+        <select id="buyType">
+          <option value="">⚔ Buy Unit/Building...</option>
+          <optgroup label="Units">
+            <option value="peasant">🧑 Peasant (10g, upkeep 1)</option>
+            <option value="spearman">⚔ Spearman (20g, upkeep 2)</option>
+            <option value="knight">🛡 Knight (30g, upkeep 3)</option>
+            <option value="baron">👑 Baron (40g, upkeep 4)</option>
+          </optgroup>
+          <optgroup label="Buildings">
+            <option value="farm">🌾 Farm (+2 income, 30g)</option>
+            <option value="tower">🗼 Tower (defense, 50g)</option>
+            <option value="fortress">🏰 Fortress (strong defense, 80g)</option>
+          </optgroup>
+        </select>
+        <button id="endBtn" class="btn-danger">End Turn</button>
+      </div>
     </div>
-    <div id="uiCenter">
-      <div id="info">Phase: lobby | Turn: -</div>
-    </div>
-    <div id="uiRight">
-      <select id="buyType">
-        <option value="">⚔ Buy Unit/Building...</option>
-        <optgroup label="Units">
-          <option value="peasant">🧑 Peasant (10g)</option>
-          <option value="spearman">⚔ Spearman (20g)</option>
-          <option value="knight">🛡 Knight (30g)</option>
-          <option value="baron">👑 Baron (40g)</option>
-        </optgroup>
-        <optgroup label="Buildings">
-          <option value="farm">🌾 Farm (+2 income, 15g)</option>
-          <option value="tower">🗼 Tower (defense, 25g)</option>
-          <option value="fortress">🏰 Fortress (strong defense, 40g)</option>
-        </optgroup>
-      </select>
-      <button id="endBtn" class="btn-danger">End Turn</button>
-    </div>
-  </div>
 
-  <div id="unitPanel">
-    <span id="unitInfo">— No player data —</span>
-  </div>
+    <div id="unitPanel">
+      <span id="unitInfo">— No player data —</span>
+    </div>
 
-  <div id="mapWrapper">
-    <div id="map"></div>
+    <div id="mapWrapper">
+      <div id="map"></div>
+    </div>
+
   </div>
 
   <div id="tooltip"></div>
 
   <div id="spotifyEmbed">
     <iframe
-      style="border-radius:8px; display:block;"
       src="https://open.spotify.com/embed/playlist/25FRBddMnZKKctxOi2ZbBs?utm_source=generator"
       width="260"
       height="80"
@@ -58,9 +60,7 @@
       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
       loading="lazy">
     </iframe>
-    <div style="font-size:10px; color:#8a7450; margin-top:4px; text-align:center; font-style:italic;">
-      Recommended background music
-    </div>
+    <p>Recommended background music</p>
   </div>
 
   <script src="app.js"></script>
