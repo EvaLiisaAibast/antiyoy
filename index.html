@@ -12,30 +12,32 @@
   <div id="gameWrapper">
 
     <div id="ui">
-      <div id="uiLeft">
-        <input id="username" placeholder="Enter username" autocomplete="off" />
-        <button id="joinBtn" class="btn-primary">Join Game</button>
-        <button id="startBtn" class="btn-secondary">Start Game</button>
+      <div id="uiControls">
+        <div id="uiLeft">
+          <input id="username" placeholder="Enter username" autocomplete="off" />
+          <button id="joinBtn" class="btn-primary">Join Game</button>
+          <button id="startBtn" class="btn-secondary">Start Game</button>
+        </div>
+        <div id="uiRight">
+          <select id="buyType">
+            <option value="">⚔ Buy Unit/Building...</option>
+            <optgroup label="Units">
+              <option value="peasant">🧑 Peasant (10g, upkeep 1)</option>
+              <option value="spearman">⚔ Spearman (20g, upkeep 2)</option>
+              <option value="knight">🛡 Knight (30g, upkeep 3)</option>
+              <option value="baron">👑 Baron (40g, upkeep 4)</option>
+            </optgroup>
+            <optgroup label="Buildings">
+              <option value="farm">🌾 Farm (+2 income, 30g)</option>
+              <option value="tower">🗼 Tower (defense, 50g)</option>
+              <option value="fortress">🏰 Fortress (strong defense, 80g)</option>
+            </optgroup>
+          </select>
+          <button id="endBtn" class="btn-danger">End Turn</button>
+        </div>
       </div>
-      <div id="uiCenter">
+      <div id="uiInfoBar">
         <div id="info">Phase: lobby | Turn: -</div>
-      </div>
-      <div id="uiRight">
-        <select id="buyType">
-          <option value="">⚔ Buy Unit/Building...</option>
-          <optgroup label="Units">
-            <option value="peasant">🧑 Peasant (10g, upkeep 1)</option>
-            <option value="spearman">⚔ Spearman (20g, upkeep 2)</option>
-            <option value="knight">🛡 Knight (30g, upkeep 3)</option>
-            <option value="baron">👑 Baron (40g, upkeep 4)</option>
-          </optgroup>
-          <optgroup label="Buildings">
-            <option value="farm">🌾 Farm (+2 income, 30g)</option>
-            <option value="tower">🗼 Tower (defense, 50g)</option>
-            <option value="fortress">🏰 Fortress (strong defense, 80g)</option>
-          </optgroup>
-        </select>
-        <button id="endBtn" class="btn-danger">End Turn</button>
       </div>
     </div>
 
@@ -49,6 +51,7 @@
 
   </div>
 
+  <div id="toastContainer"></div>
   <div id="tooltip"></div>
 
   <div id="spotifyEmbed">
