@@ -37,6 +37,27 @@ if (savedUsername && savedKey) {
   document.getElementById("username").value = savedUsername;
 }
 
+const TOAST_ICONS = { info: "📜", warn: "⚠", error: "✖", success: "✔" };
+
+function toast(message, type = "info", duration = 3500) {
+  const container = document.getElementById("toastContainer");
+  const el        = document.createElement("div");
+  el.className    = `toast ${type}`;
+  el.innerHTML    = `
+    <span class="toast-icon">${TOAST_ICONS[type] || "📜"}</span>
+    <span class="toast-msg">${message}</span>
+    <span class="toast-close" title="Dismiss">✕</span>
+  `;
+  const dismiss = () => {
+    el.classList.add("removing");
+    el.addEventListener("animationend", () => el.remove(), { once: true });
+  };
+  el.querySelector(".toast-close").addEventListener("click", dismiss);
+  el.addEventListener("click", dismiss);
+  container.appendChild(el);
+  setTimeout(dismiss, duration);
+}
+
 async function fetchState() {
   try {
     const res = await fetch(BASE_URL);
@@ -49,24 +70,25 @@ async function fetchState() {
 
 async function post(body) {
   try {
-    const res = await fetch(BASE_URL, {
+    const res  = await fetch(BASE_URL, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify(body)
     });
     const data = await res.json();
-    if (!res.ok) alert(data.error || "Server error.");
+    if (!res.ok) toast(data.error || "Server error.", "error");
     await fetchState();
   } catch (err) {
     console.error("POST failed:", err);
+    toast("Network error. Please try again.", "error");
   }
 }
 
 async function joinGame() {
   const username = document.getElementById("username").value.trim();
-  if (!username) return alert("Enter a username first.");
+  if (!username) { toast("Enter a username first.", "warn"); return; }
   try {
-    const res = await fetch(BASE_URL, {
+    const res  = await fetch(BASE_URL, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ action: "join", username })
@@ -77,14 +99,14 @@ async function joinGame() {
       myUsername = username;
       localStorage.setItem("username",  myUsername);
       localStorage.setItem("playerKey", playerKey);
-      alert(`Joined as '${username}'! Press Start Game when all players are ready.`);
+      toast(`Joined as <strong>${username}</strong>! Press Start Game when all players are ready.`, "success", 5000);
       await fetchState();
     } else {
-      alert(data.error || "Failed to join.");
+      toast(data.error || "Failed to join.", "error");
     }
   } catch (err) {
     console.error("Join failed:", err);
-    alert("Network error while joining.");
+    toast("Network error while joining.", "error");
   }
 }
 
@@ -109,60 +131,57 @@ async function buy(type, hex) {
 }
 
 function onHexClick(hex) {
-  if (!playerKey)                          return alert("You must join the game first!");
-  if (state.phase !== "playing")           return alert("Game not started yet.");
-  if (state.current_player !== myUsername) return alert("Not your turn!");
+  if (!playerKey)                          { toast("You must join the game first!", "warn"); return; }
+  if (state.phase !== "playing")           { toast("Game has not started yet.", "warn"); return; }
+  if (state.current_player !== myUsername) { toast("It's not your turn!", "warn"); return; }
 
   const buyType = document.getElementById("buyType").value;
 
   if (buyType) {
-    if (hex.type === "impassable") return alert("Can't place here: impassable tile.");
+    if (hex.type === "impassable") { toast("Can't place here: impassable tile.", "error"); return; }
     const isUnit = UNIT_COST[buyType] !== undefined;
-    if (isUnit && hex.building)        return alert("Can't place a unit on a building.");
-    if (!isUnit && isHexOccupied(hex)) return alert("Can't place a building here: hex is occupied.");
+    if (isUnit && hex.building)        { toast("Can't place a unit on a building.", "error"); return; }
+    if (!isUnit && isHexOccupied(hex)) { toast("Can't place a building here: hex is occupied.", "error"); return; }
     buy(buyType, hex);
     document.getElementById("buyType").value = "";
     return;
   }
 
   if (!selectedHexCoords) {
-    if (!hex.unit)                 return alert("No unit on this tile. Select a tile with your unit to move.");
-    if (hex.owner !== myUsername)  return alert("That's not your unit.");
+    if (!hex.unit)                { toast("No unit on this tile. Select a tile with your unit to move.", "info"); return; }
+    if (hex.owner !== myUsername) { toast("That's not your unit.", "warn"); return; }
     selectedHexCoords = { col: hex.col, row: hex.row };
     render();
-  } else {
-    if (hex.col === selectedHexCoords.col && hex.row === selectedHexCoords.row) {
-      selectedHexCoords = null;
-      render();
-      return;
-    }
-
-    const fromHex = state.map.find(
-      h => h.col === selectedHexCoords.col && h.row === selectedHexCoords.row
-    );
-
-    if (!fromHex) {
-      selectedHexCoords = null;
-      render();
-      return;
-    }
-
-    if (!isValidMove(fromHex, hex)) {
-      alert("Invalid move: tiles must be adjacent and destination must not be blocked by your own unit.");
-      selectedHexCoords = null;
-      render();
-      return;
-    }
-
-    post({
-      action:     "move",
-      player_key: playerKey,
-      from: { col: fromHex.col, row: fromHex.row },
-      to:   { col: hex.col,     row: hex.row }
-    });
-
-    selectedHexCoords = null;
+    return;
   }
+
+  if (hex.col === selectedHexCoords.col && hex.row === selectedHexCoords.row) {
+    selectedHexCoords = null;
+    render();
+    return;
+  }
+
+  const fromHex = state.map.find(
+    h => h.col === selectedHexCoords.col && h.row === selectedHexCoords.row
+  );
+
+  if (!fromHex) { selectedHexCoords = null; render(); return; }
+
+  if (!isValidMove(fromHex, hex)) {
+    toast("Invalid move: tiles must be adjacent and destination must not be blocked by your own unit.", "error");
+    selectedHexCoords = null;
+    render();
+    return;
+  }
+
+  post({
+    action:     "move",
+    player_key: playerKey,
+    from: { col: fromHex.col, row: fromHex.row },
+    to:   { col: hex.col,     row: hex.row }
+  });
+
+  selectedHexCoords = null;
 }
 
 function isValidMove(from, to) {
@@ -195,10 +214,19 @@ function isHexOccupied(hex) {
   return !!(hex.unit || hex.building || hex.unit_image || hex.building_image);
 }
 
+function countBuildingIncome(username) {
+  if (!state || !state.map) return 0;
+  let total = 0;
+  for (let i = 0; i < state.map.length; i++) {
+    const h = state.map[i];
+    if (h.owner === username && h.building) total += BUILDING_INCOME[h.building] || 0;
+  }
+  return total;
+}
+
 function render() {
   const mapEl = document.getElementById("map");
   mapEl.innerHTML = "";
-
   if (!state) return;
 
   const isMyTurn = state.phase === "playing" && state.current_player === myUsername;
@@ -228,22 +256,9 @@ function render() {
   }
 }
 
-function countBuildingIncome(username) {
-  if (!state || !state.map) return 0;
-  let total = 0;
-  for (let i = 0; i < state.map.length; i++) {
-    const h = state.map[i];
-    if (h.owner === username && h.building) total += BUILDING_INCOME[h.building] || 0;
-  }
-  return total;
-}
-
 function renderUnitPanel(me) {
   const panel = document.getElementById("unitInfo");
-  if (!me || !state || !state.map) {
-    panel.innerText = "— No player data —";
-    return;
-  }
+  if (!me || !state || !state.map) { panel.innerText = "— No player data —"; return; }
   const counts = { peasant: 0, spearman: 0, knight: 0, baron: 0 };
   for (let i = 0; i < state.map.length; i++) {
     const h = state.map[i];
@@ -258,17 +273,12 @@ function renderHex(hex) {
   const mapEl = document.getElementById("map");
   const hexEl = document.createElement("div");
   hexEl.className = "hex";
-
   hexEl.style.left   = hex.x + "px";
   hexEl.style.top    = hex.y + "px";
   hexEl.style.width  = hex.width + "px";
   hexEl.style.height = hex.height + "px";
 
-  if (
-    selectedHexCoords &&
-    selectedHexCoords.col === hex.col &&
-    selectedHexCoords.row === hex.row
-  ) {
+  if (selectedHexCoords && selectedHexCoords.col === hex.col && selectedHexCoords.row === hex.row) {
     hexEl.classList.add("selected");
   }
 
@@ -284,7 +294,6 @@ function renderHex(hex) {
     unit.className = "overlay";
     unit.alt       = hex.unit || "unit";
     hexEl.appendChild(unit);
-
     if (hex.unit === "peasant" && hex.unit_count && hex.unit_count > 1) {
       const badge     = document.createElement("div");
       badge.className = "peasant-count";
